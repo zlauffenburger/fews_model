@@ -24,8 +24,8 @@ params = {
     'fraction_irr_ag': 0.2,
     'crop_water_requirement': 1000,
     'fraction_people_active': 0.3,
-    'fraction_time_agric': 0.05,
-    'population_growth_rate': 1.3,
+    'fraction_time_agric': 0.08,
+    'population_growth_rate': 0.018,
 
     'init_population': 100000000,
     'init_storage': 60000,

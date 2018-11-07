@@ -74,6 +74,8 @@ class FoodWaterModel(object):
         return self.mu * self._ces_production_function(L, W, H) / self.M
 
     def _few_system(self, t, x):
+
+        self.f_l_ag = 1 / (1 + np.exp(-0.000000005 * x[0])) - 0.5
         Lag = self.f_l_ag * self.A
         Wag = self.cwr * self.f_ag_irr
         Hag = self.f_ppl_act * self.f_time_ag * x[0]
@@ -81,7 +83,7 @@ class FoodWaterModel(object):
         dNdt = self.r * x[0] * (1 - x[0] / self._K(Lag, Wag*Lag, Hag))
         dSdt = self._water_balance(x[1], Wag)
 
-        return np.array([dNdt, dSdt]), Wag
+        return np.array([dNdt, dSdt]), Wag, Lag
 
     def integrate(self, x0, tend, dt, *args):
         """
@@ -121,19 +123,19 @@ class FoodWaterModel(object):
         TIME = self.integrate(X0, tend, dt)
         plt.plot(self.sol_array[0, 1:], self.sol_array[1, 1:], 'ro')
 
-        x = np.linspace(0.5e8, 1.5e8, 50)
-        y = np.linspace(0, 100000, 50)
+        x = np.linspace(self.sol_array[0, 1:].min()*0.8, self.sol_array[0, 1:].max()*1.2, 50)
+        y = np.linspace(self.sol_array[1, 1:].min()*0.8, self.sol_array[1, 1:].max()*1.2, 50)
 
         X1, Y1 = np.meshgrid(x, y)
         X = np.array([X1, Y1])
 
-        DX, Wag = self._few_system(0, [X1, Y1])
+        DX, Wag, fl_ag = self._few_system(0, [X1, Y1])
         M = np.hypot(DX[0], DX[1])
         M[M == 0] = 1
         #DX /= M
 
         plt.title('Trajectories and Direction Fields', fontsize=14)
-        plt.quiver(X1, Y1, DX[0], DX[1], np.array(Wag), pivot='mid')
+        plt.quiver(X1, Y1, DX[0], DX[1], np.asarray(fl_ag), angles='xy', pivot='mid')
         cbar = plt.colorbar()
         cbar.set_label('Water for Agriculture', fontsize=14)
         cbar.set_clim(np.min(Wag), np.max(Wag))
