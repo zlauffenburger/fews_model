@@ -83,7 +83,7 @@ class FoodWaterModel(object):
         dNdt = self.r * x[0] * (1 - x[0] / self._K(Lag, Wag*Lag, Hag))
         dSdt = self._water_balance(x[1], Wag)
 
-        return np.array([dNdt, dSdt]), Wag, Lag
+        return np.array([dNdt, dSdt]), Wag, self.f_l_ag
 
     def integrate(self, x0, tend, dt, *args):
         """
@@ -103,7 +103,6 @@ class FoodWaterModel(object):
 
     def plot_time_series(self, *args):
         t = np.arange(self.sol_array.shape[1])
-        print self.sol_array
         time_years = self.time
         plt.plot(time_years, self.sol_array[0, :], 'b', label='Population')
         plt.xlabel('Time [years]', fontsize=14)
@@ -135,10 +134,10 @@ class FoodWaterModel(object):
         #DX /= M
 
         plt.title('Trajectories and Direction Fields', fontsize=14)
-        plt.quiver(X1, Y1, DX[0], DX[1], np.asarray(fl_ag), angles='xy', pivot='mid')
+        plt.quiver(X1, Y1, DX[0], DX[1], np.asarray(fl_ag), angles='xy', pivot='mid', cmap='viridis')
         cbar = plt.colorbar()
-        cbar.set_label('Water for Agriculture', fontsize=14)
-        cbar.set_clim(np.min(Wag), np.max(Wag))
+        cbar.set_label('Fraction of land to ag', fontsize=14)
+        #cbar.set_clim(np.min(Wag), np.max(Wag))
         plt.text(0.62, 0.9, '$Initial \ N_b=$' + str(x0[0]), fontsize=14)
         plt.text(0.62, 0.85, '$Initial \ N_w=$' + str(x0[1]), fontsize=14)
         plt.xlabel('Population', fontsize=14)
